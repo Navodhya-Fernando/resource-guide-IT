@@ -1,40 +1,347 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
-import { 
-  Sparkles, ChevronRight, ExternalLink, Hexagon, Plus, Circle, 
-  Cpu, Briefcase, Users, ShieldCheck, BrainCircuit, HeartHandshake, PlayCircle
-} from 'lucide-react';
+import React, { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
+import { Sparkles, ArrowRight, ChevronRight, PlayCircle, ExternalLink, Hexagon, Plus, Circle, Cpu } from "lucide-react";
 
-// --- UI Variants ---
-const revealVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+/* ── Custom UI/UX Styles ── */
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  :root {
+    --bg:     #24101a;
+    --layer:  #411c30;
+    --gold:   #f6b900;
+    --white:  #ffffff;
+    --muted:  rgba(255,255,255,0.6);
+    --subtle: rgba(255,255,255,0.1);
+    --border: rgba(246,185,0,0.25);
   }
-};
 
-// --- Ambient Tech Background (25% Opacity) ---
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body, #rg-root {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400; /* Increased base weight for better readability */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Progress Bar */
+  .rg-progress {
+    position: fixed; top: 0; left: 0;
+    height: 4px; width: 0%;
+    background: var(--gold);
+    z-index: 100;
+    box-shadow: 0 0 15px var(--gold);
+  }
+
+  /* Layout */
+  .rg-main { max-width: 860px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
+  .rg-section { padding: 140px 0; border-top: 1px solid var(--subtle); }
+  .rg-section:first-child { border-top: none; }
+
+  /* Hero Section */
+  .rg-hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center;
+  }
+  .rg-hero h1 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(56px, 8vw, 96px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .rg-gold { color: var(--gold); }
+  
+  .rg-hero-sub {
+    font-size: clamp(16px, 3vw, 22px);
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 48px;
+  }
+
+  /* Improved Visa Badge */
+  .rg-visa-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(246, 185, 0, 0.1);
+    border: 1px solid var(--gold);
+    color: var(--white);
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 20px rgba(246, 185, 0, 0.15);
+    margin-top: 20px;
+  }
+
+  /* Typography & Section Labels */
+  .rg-num {
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-weight: 700;
+    display: inline-block;
+    background: rgba(246,185,0,0.1);
+    padding: 6px 16px;
+    border-radius: 20px;
+  }
+  .rg-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 40px;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .rg-p { color: var(--white); font-size: 18px; margin-bottom: 28px; font-weight: 400; }
+  .rg-p:last-child { margin-bottom: 0; }
+  .rg-p strong { font-weight: 700; }
+  .rg-accent { color: var(--gold); font-weight: 700; }
+  .rg-accent-red { color: #ffe500; font-weight: 700; }
+
+  /* Callout Block */
+  .rg-callout {
+    border-left: 3px solid var(--gold);
+    padding: 24px 32px;
+    background: linear-gradient(90deg, rgba(246,185,0,0.1) 0%, transparent 100%);
+    margin: 48px 0;
+    border-radius: 0 12px 12px 0;
+  }
+
+  /* Step Lists */
+  .rg-steps { margin: 48px 0; }
+  .rg-step {
+    display: flex; gap: 24px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--subtle);
+  }
+  .rg-step:last-child { border-bottom: none; }
+  .rg-step-num {
+    flex-shrink: 0;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    width: 90px;
+  }
+  .rg-step-body { font-size: 18px; color: var(--white); line-height: 1.7; }
+  .rg-step-body blockquote {
+    margin-top: 20px;
+    padding: 20px 24px;
+    background: rgba(0,0,0,0.25);
+    border-left: 2px solid var(--gold);
+    font-style: italic;
+    color: rgba(255,255,255,0.9);
+    font-size: 16px;
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* Video Layouts */
+  .rg-video-label {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+  .rg-video-wrap {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto 48px;
+    aspect-ratio: 9 / 16;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    border: 1px solid var(--subtle);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .rg-video-wrap:hover { transform: translateY(-5px); border-color: var(--gold); }
+  .rg-video-wrap iframe {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+  .rg-video-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin: 48px 0;
+  }
+  .rg-video-col { display: flex; flex-direction: column; align-items: center; }
+  
+  /* Link Lists */
+  .rg-link-list { margin: 48px 0; border-top: 1px solid var(--subtle); }
+  .rg-link-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--subtle);
+    text-decoration: none;
+    color: var(--white);
+    font-size: 18px;
+    font-weight: 500;
+    transition: color 0.2s, padding-left 0.2s;
+  }
+  .rg-link-item:hover { color: var(--gold); padding-left: 10px; }
+  .rg-link-item-left { display: flex; align-items: center; gap: 20px; }
+  .rg-link-item-num { font-size: 14px; color: var(--gold); font-weight: 700; width: 30px; }
+
+  /* Course Sections */
+  .rg-course-category { margin: 64px 0; }
+  .rg-course-category-title {
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    font-weight: 700;
+  }
+  .rg-course-item {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--subtle);
+    text-decoration: none;
+    color: var(--white);
+    font-size: 17px;
+    transition: color 0.2s;
+  }
+  .rg-course-item:hover { color: var(--gold); }
+  .rg-course-icon { color: var(--gold); margin-top: 4px; flex-shrink: 0; }
+
+  /* Options List */
+  .rg-options { margin: 48px 0; }
+  .rg-option {
+    display: flex; gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--subtle);
+  }
+  .rg-option:last-child { border-bottom: none; }
+  .rg-option.active { 
+    background: linear-gradient(90deg, rgba(246,185,0,0.08) 0%, transparent 100%); 
+    padding: 32px; 
+    border-radius: 12px; 
+    border: 1px solid var(--border); 
+  }
+  .rg-option-num { color: var(--gold); font-weight: 700; font-size: 18px; }
+  .rg-option-text { font-size: 17px; color: rgba(255,255,255,0.7); }
+  .rg-option.active .rg-option-text { color: var(--white); font-weight: 500; }
+  
+  /* CTA */
+  .rg-cta {
+    text-align: center;
+    padding: 160px 0 200px;
+  }
+  .rg-cta-icon { color: var(--gold); margin: 0 auto 40px; }
+  .rg-cta h2 {
+    font-size: clamp(40px, 8vw, 80px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    line-height: 1.1;
+  }
+  .rg-cta-desc {
+    font-size: 20px;
+    max-width: 640px;
+    margin: 0 auto 32px;
+    color: var(--white);
+  }
+  .rg-cta-wish {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .rg-cta-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+    background: var(--gold);
+    color: var(--bg);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 24px 48px;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-top: 32px;
+    box-shadow: 0 10px 30px rgba(246,185,0,0.3);
+  }
+  .rg-cta-btn:hover { background: #fff; transform: translateY(-4px); box-shadow: 0 15px 40px rgba(255,255,255,0.4); }
+
+  /* Mobile Adjustments */
+  @media (max-width: 768px) {
+    .rg-p { font-size: 16px; }
+    .rg-video-grid { grid-template-columns: 1fr; gap: 48px; }
+    .rg-step { flex-direction: column; gap: 12px; }
+    .rg-step-num { margin-bottom: 8px; }
+    .rg-cta {
+      padding: 80px 0 120px;
+    }
+    .rg-cta-icon {
+      margin: 0 auto 24px;
+      width: 40px;
+      height: 40px;
+    }
+    .rg-cta h2 {
+      font-size: 36px;
+      margin-bottom: 24px;
+    }
+    .rg-cta-desc {
+      font-size: 16px;
+      margin-bottom: 24px;
+      padding: 0 16px;
+    }
+    .rg-cta-wish {
+      font-size: 20px;
+    }
+    .rg-cta-btn {
+      padding: 18px 32px;
+      font-size: 14px;
+      margin-top: 24px;
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+`;
+
+/* ── Ambient Background (Refined Opacity) ── */
 const FloatingTechBackground = () => {
   const [elements, setElements] = useState([]);
   useEffect(() => {
     const icons = [Hexagon, Plus, Circle, Cpu];
-    const generated = Array.from({ length: 12 }).map((_, i) => ({
+    const generated = Array.from({ length: 10 }).map((_, i) => ({
       id: i,
       Icon: icons[Math.floor(Math.random() * icons.length)],
-      size: Math.random() * 25 + 10,
+      size: Math.random() * 20 + 10,
       startX: Math.random() * 100,
       startY: Math.random() * 100,
-      duration: Math.random() * 25 + 25,
+      duration: Math.random() * 30 + 30,
     }));
     setElements(generated);
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none bg-dreamBg overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#f6b900 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
-      <div className="absolute inset-0 opacity-25">
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-dreamBg">
+      <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(#f6b900 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      <div className="absolute inset-0 opacity-[0.15]">
         {elements.map((el) => {
           const IconComponent = el.Icon;
           return (
@@ -42,7 +349,7 @@ const FloatingTechBackground = () => {
               key={el.id}
               initial={{ x: `${el.startX}vw`, y: `${el.startY}vh`, rotate: 0 }}
               animate={{ 
-                y: [`${el.startY}vh`, `${el.startY - 15}vh`, `${el.startY}vh`],
+                y: [`${el.startY}vh`, `${el.startY - 10}vh`, `${el.startY}vh`],
                 rotate: [0, 360]
               }}
               transition={{ duration: el.duration, repeat: Infinity, ease: "linear" }}
@@ -53,341 +360,292 @@ const FloatingTechBackground = () => {
           );
         })}
       </div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#24101a_90%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#24101a_85%)]" />
     </div>
   );
 };
 
-// --- 1080x1920 Reel Embed Component ---
-const ReelEmbed = ({ src, title }) => (
-  <div className="w-full max-w-[280px] md:max-w-[320px] mx-auto aspect-[9/16] bg-black/40 rounded-3xl border border-white/10 overflow-hidden relative shadow-2xl">
+/* ── Animation Wrappers ── */
+const FadeUp = ({ children, delay = 0, className = "" }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
+
+const VideoEmbed = ({ src, title }) => (
+  <div className="rg-video-wrap">
     {src ? (
-      <iframe 
-        src={src} 
-        frameBorder="0" 
-        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
-        className="absolute top-0 left-0 w-full h-full"
-        title={title}
-      ></iframe>
+      <iframe src={src} allow="autoplay; fullscreen; picture-in-picture" title={title} />
     ) : (
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-gray-500">
-        <PlayCircle size={48} className="mb-4 text-white/20" />
-        <span className="text-xs tracking-widest uppercase font-medium">{title} <br/><br/>(Embed Placeholder)</span>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}>
+        <PlayCircle size={48} style={{ marginBottom: 16 }} />
+        <span style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase' }}>{title} Placeholder</span>
       </div>
     )}
   </div>
 );
 
 export default function ResourceGuide() {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({ container: containerRef });
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+  const progressRef = useRef(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (progressRef.current) {
+        progressRef.current.style.width = (scrolled / total) * 100 + "%";
+      }
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <div className="relative bg-dreamBg text-white font-['Inter',_sans-serif] selection:bg-dreamGold/30 selection:text-white antialiased">
-      
-      <FloatingTechBackground />
+    <>
+      <style>{css}</style>
+      <div id="rg-root">
+        <div ref={progressRef} className="rg-progress" />
+        <FloatingTechBackground />
 
-      <motion.div style={{ scaleX }} className="fixed top-0 left-0 right-0 h-[3px] bg-dreamGold origin-left z-50" />
+        <main className="rg-main">
+          
+          {/* ── HERO ── */}
+          <section className="rg-hero rg-section">
+            <FadeUp>
+              <h1><span className="rg-gold">IT</span> Professionals<span style={{display: 'none'}}>[cite: 1]</span></h1>
+              <p className="rg-hero-sub">Resource Guide</p>
+              <div className="rg-hero-divider" />
+              <div className="rg-visa-badge">If you have 485, 189, 190, 500, 491, 191, 482, 186 Visa<span style={{display: 'none'}}>[cite: 1]</span></div>
+            </FadeUp>
+          </section>
 
-      {/* Persistent Bottom Lockup */}
-      <div className="fixed bottom-6 left-8 z-50 flex items-center gap-4 opacity-40 hover:opacity-100 transition-opacity duration-500 hidden md:flex">
-        <img src="/dreamshift-logo.png" alt="Logo" className="h-5 object-contain" />
-        <div className="h-4 w-px bg-white/20" />
-        <span className="text-[10px] font-medium tracking-[0.2em] text-gray-400 uppercase mt-0.5">All Rights Reserved</span>
-      </div>
-
-      <div ref={containerRef} className="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth relative z-10">
-        
-        {/* SLIDE 1: HERO */}
-        <section className="min-h-screen w-full snap-start snap-always flex flex-col items-center justify-center px-4 md:px-6 py-20 relative">
-          <motion.div variants={revealVariants} initial="hidden" whileInView="visible" className="max-w-4xl w-full text-center">
-            <h1 className="text-5xl md:text-8xl font-bold tracking-tight mb-2">
-              <span className="text-dreamGold">IT</span> Professionals
-            </h1>
-            <p className="text-xl md:text-3xl text-gray-400 font-light tracking-[0.2em] uppercase mb-12">Resource Guide</p>
-            <div className="h-px w-24 bg-dreamGold/30 mx-auto mb-10" />
-            <p className="text-sm md:text-base text-gray-400 tracking-wide font-medium bg-white/5 inline-block px-6 py-3 rounded-full border border-white/5">
-              If you have 485, 189, 190, 500, 491, 191, 482, 186 Visa
-            </p>
-          </motion.div>
-        </section>
-
-        {/* SLIDE 2: INTRO & REALITY */}
-        <section className="min-h-screen w-full snap-start snap-always flex items-center justify-center px-4 md:px-6 py-32 bg-gradient-to-b from-transparent to-black/20">
-          <motion.div variants={revealVariants} initial="hidden" whileInView="visible" className="max-w-4xl w-full">
-            <div className="space-y-8 text-lg text-gray-300 font-light leading-relaxed">
-              <p className="text-2xl md:text-3xl text-white font-medium mb-8">Hey, It’s Methsara here from DreamShift :)</p>
-              <p>Since you are looking for IT Jobs, we gathered as many resources as possible to help your job search!</p>
+          {/* ── INTRO ── */}
+          <section className="rg-section">
+            <FadeUp>
+              <p className="rg-p" style={{ fontSize: 28, fontWeight: 500, marginBottom: 40 }}>Hey, It’s Methsara here from DreamShift :)<span style={{display: 'none'}}>[cite: 2]</span></p>
+              <p className="rg-p">Since you are looking for IT Jobs, we gathered as many resources as possible to help your job search! Here’s Something you need to know:<span style={{display: 'none'}}>[cite: 2, 3]</span></p>
+              <p className="rg-p">Let’s think you are applying for 100 Jobs on LinkedIn & Seek: Unfortunately, around <span className="rg-accent-red">65%</span> of the jobs you apply will get rejected.<span style={{display: 'none'}}>[cite: 3]</span></p>
               
-              <div className="bg-dreamBg/80 p-8 md:p-12 rounded-[2rem] border border-white/5 mt-10 backdrop-blur-md shadow-2xl">
-                <h3 className="text-2xl md:text-3xl font-bold text-dreamGold mb-8">Here’s Something you need to know:</h3>
-                <p className="mb-6">Let’s think you are applying for 100 Jobs on LinkedIn & Seek:</p>
-                <div className="bg-black/30 p-6 rounded-2xl border-l-4 border-red-500 mb-6">
-                  <p className="text-white text-xl font-medium">Unfortunately, around <span className="text-red-400 font-bold">65%</span> of the jobs you apply will get rejected.</p>
-                </div>
-                <p className="mb-6 text-gray-400">That is the reality of Australian Job Market for Migrants!</p>
-                <p className="mb-6 text-white font-medium">But don’t worry, you still have around <span className="text-dreamGold font-bold text-2xl">35</span> jobs you can apply for and land interviews!</p>
-                <p>For these 35 Jobs, you will be competing with other Migrants like you.</p>
+              <div className="rg-callout">
+                <p className="rg-p">That is the reality of Australian Job Market for Migrants! But don’t worry, you still have around <strong className="rg-accent">35 jobs</strong> you can apply for and land interviews! For these 35 Jobs, you will be competing with other Migrants like you.<span style={{display: 'none'}}>[cite: 4]</span></p>
               </div>
               
-              <div className="bg-dreamGold text-dreamBg p-6 rounded-2xl font-bold text-lg md:text-xl text-center shadow-[0_0_30px_rgba(246,185,0,0.2)]">
-                If you can do the following things, you can increase your chances of landing Interviews!
-              </div>
-            </div>
-          </motion.div>
-        </section>
+              <p className="rg-p" style={{ fontWeight: 500 }}>If you can do the following things, you can increase your chances of landing Interviews!<span style={{display: 'none'}}>[cite: 5]</span></p>
+            </FadeUp>
+          </section>
 
-        {/* SLIDE 3: PASSION PROJECTS */}
-        <section className="min-h-screen w-full snap-start snap-always py-32 flex items-center justify-center px-4 md:px-6">
-          <motion.div variants={revealVariants} initial="hidden" whileInView="visible" className="max-w-6xl w-full">
-            <div className="w-full text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tight"><span className="text-dreamGold">1)</span> <span>Passion Projects</span></h2>
-            </div>
-            
-            <div className="grid lg:grid-cols-12 gap-12 items-start">
-              <div className="lg:col-span-5 text-center">
-                <p className="text-lg text-gray-400 font-light mb-6">Check this video first:</p>
-                <ReelEmbed src="https://player.vimeo.com/video/1190467338?badge=0&autopause=0&player_id=0&app_id=58479" title="Passion Projects" />
-              </div>
+          {/* ── 01 PASSION PROJECTS ── */}
+          <section className="rg-section">
+            <FadeUp>
+              <p className="rg-num">01 — Strategy</p>
+              <h2 className="rg-title">Passion Projects<span style={{display: 'none'}}>[cite: 5]</span></h2>
+              
+              <p className="rg-video-label">Watch this first</p>
+              <VideoEmbed src="https://player.vimeo.com/video/1190467338?badge=0&autopause=0&player_id=0&app_id=58479" title="Passion Projects" />
 
-              <div className="lg:col-span-7 space-y-6">
-                <div className="bg-dreamGold/10 border-l-2 border-dreamGold p-6 rounded-r-xl backdrop-blur-sm mb-10">
-                  <p className="text-dreamGold text-sm font-medium leading-relaxed italic">
-                    *Tip: Try to do a passion project based on your state/city, because recruiters can relate to it more easily.
-                  </p>
+              <p className="rg-p" style={{ color: "var(--gold)", fontStyle: "italic", fontSize: 16 }}>*Tip: Try to do a passion project based on your state/city, because recruiters can relate to it more easily.<span style={{display: 'none'}}>[cite: 7]</span></p>
+              
+              <p className="rg-p" style={{ marginTop: 48, fontWeight: 500 }}>Here’s a simple guide on how to do a Passion Project and land more interviews:<span style={{display: 'none'}}>[cite: 7]</span></p>
+
+              <div className="rg-steps">
+                <div className="rg-step">
+                  <span className="rg-step-num">Step 01</span>
+                  <div className="rg-step-body">Go to ChatGPT (or any AI tools you use), upload your CV, and clearly mention your job preferences, like the job titles you’re targeting, the location, and the industry.<span style={{display: 'none'}}>[cite: 8]</span></div>
                 </div>
-
-                <p className="text-xl text-white font-medium mb-8">Here’s a simple guide on how to do a Passion Project and land more interviews:</p>
-
-                <div className="space-y-4">
-                  {[
-                    { s: "Step 1", t: "Go to ChatGPT (or any AI tools you use), upload your CV, and clearly mention your job preferences, like the job titles you’re targeting, the location, and the industry." },
-                    { s: "Step 2", t: "Once you’ve shared those details, use this prompt:", quote: "“Suggest me project ideas that I can do online, which will help me land a job in the specific location and job titles I mentioned earlier.”" },
-                    { s: "Step 3", t: "Go through the ideas, brainstorm, pick the best one, tweak it based on your preferences, and start working on it." },
-                    { s: "Step 4", t: "As soon as you start, add it as an ongoing project. You don’t have to wait until it’s fully completed. Ongoing projects actually work better than listing them as finished ones." }
-                  ].map((item, i) => (
-                    <div key={i} className="bg-dreamCard/20 p-6 md:p-8 rounded-3xl border border-white/5 flex flex-col md:flex-row gap-6 items-start hover:border-dreamGold/30 transition-colors shadow-lg">
-                      <div className="bg-dreamBg/80 border border-dreamGold text-dreamGold px-4 py-2 rounded-xl text-xs font-bold shrink-0 tracking-widest uppercase">{item.s}</div>
-                      <div className="w-full">
-                        <p className="text-gray-300 font-light text-sm md:text-base leading-relaxed">{item.t}</p>
-                        {item.quote && (
-                          <blockquote className="mt-4 p-5 bg-black/40 border-l-2 border-dreamGold rounded-r-xl text-white font-medium text-sm leading-relaxed">
-                            {item.quote}
-                          </blockquote>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <div className="rg-step">
+                  <span className="rg-step-num">Step 02</span>
+                  <div className="rg-step-body">
+                    Once you’ve shared those details, use this prompt:<span style={{display: 'none'}}>[cite: 9]</span>
+                    <blockquote>“Suggest me project ideas that I can do online, which will help me land a job in the specific location and job titles I mentioned earlier.”<span style={{display: 'none'}}>[cite: 10]</span></blockquote>
+                  </div>
+                </div>
+                <div className="rg-step">
+                  <span className="rg-step-num">Step 03</span>
+                  <div className="rg-step-body">Go through the ideas, brainstorm, pick the best one, tweak it based on your preferences, and start working on it.<span style={{display: 'none'}}>[cite: 11]</span></div>
+                </div>
+                <div className="rg-step">
+                  <span className="rg-step-num">Step 04</span>
+                  <div className="rg-step-body">As soon as you start, add it as an ongoing project.<span style={{display: 'none'}}>[cite: 12]</span> You don’t have to wait until it’s fully completed. Ongoing projects actually work better than listing them as finished ones..<span style={{display: 'none'}}>[cite: 13]</span></div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </section>
+            </FadeUp>
+          </section>
 
-        {/* SLIDE 4: NETWORKING */}
-        <section className="min-h-screen w-full snap-start snap-always py-32 flex items-center justify-center px-4 md:px-6 bg-gradient-to-t from-transparent to-black/20">
-          <motion.div variants={revealVariants} initial="hidden" whileInView="visible" className="max-w-6xl w-full">
-            <div className="w-full text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tight"><span className="text-dreamGold">2)</span> <span>Networking Events</span></h2>
-            </div>
+          {/* ── 02 NETWORKING ── */}
+          <section className="rg-section">
+            <FadeUp>
+              <p className="rg-num">02 — Strategy</p>
+              <h2 className="rg-title">Networking Events<span style={{display: 'none'}}>[cite: 14]</span></h2>
+              <p className="rg-p">A Huge Mistake, migrants make is staying in their own circles after coming to Australia. <strong className="rg-accent">Don’t be that guy!</strong><span style={{display: 'none'}}>[cite: 14]</span></p>
+              <p className="rg-p">Go to as many IT networking events as possible, talk to more aussies in the IT Industry, because referrals can help you to land jobs much faster (Referrals can almost guarantee you interviews if your CV is good)<span style={{display: 'none'}}>[cite: 14]</span></p>
 
-            <div className="bg-dreamBg/60 p-8 md:p-12 rounded-3xl border border-white/10 backdrop-blur-md max-w-3xl mx-auto mb-12">
-                <p className="text-lg text-gray-300 font-light leading-relaxed mb-6">
-                  A Huge Mistake, migrants make is staying in their own circles after coming to Australia.
-                </p>
-                <p className="text-xl text-white font-bold mb-6">Don’t be that guy!</p>
-                <p className="text-lg text-gray-300 font-light leading-relaxed">
-                  Go to as many IT networking events as possible, talk to more aussies in the IT Industry, because referrals can help you to land jobs much faster (Referrals can almost guarantee you interviews if your CV is good)
-                </p>
+              <div className="rg-callout">
+                <p className="rg-p">Here are 2 main websites you can check to find IT Networking Oppurtunities<span style={{display: 'none'}}>[cite: 15]</span></p>
               </div>
 
-            <p className="text-lg md:text-xl text-gray-300 font-light text-center mb-16">Here are 2 main websites you can check to find IT networking opportunities</p>
-
-            <div className="grid md:grid-cols-2 gap-8 mb-16">
-              <div className="flex flex-col items-center bg-dreamCard/20 p-8 rounded-[2rem] border border-white/5 shadow-xl">
-                <h3 className="text-2xl font-bold text-white mb-8">Meetup.com</h3>
-                <ReelEmbed src="" title="Meetup.com Video" />
+              <div className="rg-video-grid">
+                <div className="rg-video-col">
+                  <p className="rg-video-label">Meetup.com<span style={{display: 'none'}}>[cite: 16]</span></p>
+                  <VideoEmbed src="https://player.vimeo.com/video/1190741312?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479" title="Meetup" />
+                </div>
+                <div className="rg-video-col">
+                  <p className="rg-video-label">Luma Events<span style={{display: 'none'}}>[cite: 16]</span></p>
+                  <VideoEmbed src="https://player.vimeo.com/video/1190465027?badge=0&autopause=0&player_id=0&app_id=58479" title="Luma Events" />
+                </div>
               </div>
-              <div className="flex flex-col items-center bg-dreamCard/20 p-8 rounded-[2rem] border border-white/5 shadow-xl">
-                <h3 className="text-2xl font-bold text-white mb-8">Luma Events</h3>
-                <ReelEmbed src="https://player.vimeo.com/video/1190465027?badge=0&autopause=0&player_id=0&app_id=58479" title="Luma Events" />
+
+              <div className="rg-link-list">
+                <p className="rg-video-label" style={{ textAlign: "left", marginTop: 20 }}>Other Platforms you can check<span style={{display: 'none'}}>[cite: 18]</span></p>
+                <a href="https://www.eventbrite.com.au/" target="_blank" rel="noreferrer" className="rg-link-item">
+                  <div className="rg-link-item-left"><span className="rg-link-item-num">01</span> Eventbrite Australia</div>
+                  <ExternalLink size={20} opacity={0.3} />
+                </a>
+                <a href="https://www.acs.org.au/" target="_blank" rel="noreferrer" className="rg-link-item">
+                  <div className="rg-link-item-left"><span className="rg-link-item-num">02</span> ACS</div>
+                  <ExternalLink size={20} opacity={0.3} />
+                </a>
               </div>
-            </div>
+            </FadeUp>
+          </section>
 
-            <div className="flex flex-col md:flex-row items-center justify-center gap-3 text-sm text-gray-400 bg-black/30 py-3 px-6 rounded-full border border-white/10 w-max mx-auto">
-               <span>Other Platforms you can check:</span>
-               <div className="flex gap-4">
-                 <a href="https://www.eventbrite.com.au/" target="_blank" rel="noreferrer" className="text-white hover:text-dreamGold transition-colors font-semibold flex items-center gap-1">Eventbrite Australia <ExternalLink size={12}/></a>
-                 <span className="text-white/20">|</span>
-                 <a href="https://www.acs.org.au/" target="_blank" rel="noreferrer" className="text-white hover:text-dreamGold transition-colors font-semibold flex items-center gap-1">ACS <ExternalLink size={12}/></a>
-               </div>
-            </div>
-          </motion.div>
-        </section>
+          {/* ── 03 COURSES ── */}
+          <section className="rg-section">
+            <FadeUp>
+              <p className="rg-num">03 — Strategy</p>
+              <h2 className="rg-title">Online Courses & Certifications<span style={{display: 'none'}}>[cite: 19]</span></h2>
+              <p className="rg-p" style={{ fontWeight: 500 }}>You have 3 Options<span style={{display: 'none'}}>[cite: 19]</span></p>
 
-        {/* SLIDE 5: COURSES */}
-        <section className="min-h-screen w-full snap-start snap-always py-32 flex items-center justify-center px-4 md:px-6">
-          <motion.div variants={revealVariants} initial="hidden" whileInView="visible" className="max-w-6xl w-full">
-            <div className="w-full text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tight"><span className="text-dreamGold">3)</span> <span>Online Courses & Certifications</span></h2>
-            </div>
-
-            <div className="w-full max-w-4xl mx-auto text-left bg-dreamBg/60 p-8 md:p-12 rounded-3xl border border-white/10 backdrop-blur-md shadow-lg mb-20">
-                <p className="text-xl font-medium text-white mb-6">You have 3 Options</p>
-                <ul className="space-y-4">
-                  <li className="flex gap-4 items-start opacity-50">
-                    <span className="text-dreamGold font-bold">1)</span>
-                    <p className="font-light">Do Courses directly from Aussie Univeristies/Institutes - Expensive though :(</p>
-                  </li>
-                  <li className="flex gap-4 items-start opacity-50">
-                    <span className="text-dreamGold font-bold">2)</span>
-                    <p className="font-light">Do Courses from online course sites like LinkedIn Learning, Alison - No courses from Australian universities though :(</p>
-                  </li>
-                </ul>
-                <div className="mt-8 bg-dreamGold/10 p-6 md:p-8 rounded-2xl border border-dreamGold/30">
-                  <p className="text-white font-medium mb-2">Or 3rd option - which is the best:</p>
-                  <div className="flex gap-4 items-start">
-                    <span className="text-dreamGold font-bold text-2xl">3)</span>
-                    <div>
-                      <p className="text-gray-200 font-light text-lg mb-4">Do Courses from Coursera but offered by Australian Universities</p>
-                      <p className="text-dreamGold font-bold text-xl tracking-tight bg-black/40 inline-block px-4 py-2 rounded-lg">We recommend Macquarie University (Sydney)</p>
-                    </div>
+              <div className="rg-options">
+                <div className="rg-option">
+                  <span className="rg-option-num">1</span>
+                  <p className="rg-option-text">Do Courses directly from Aussie Univeristies/Institutes - Expensive though :(<span style={{display: 'none'}}>[cite: 19]</span></p>
+                </div>
+                <div className="rg-option">
+                  <span className="rg-option-num">2</span>
+                  <p className="rg-option-text">Do Courses from online course sites like LinkedIn Learning, Alison - No courses from Australian universities though :(<span style={{display: 'none'}}>[cite: 20]</span></p>
+                </div>
+                <div className="rg-option active">
+                  <span className="rg-option-num">3</span>
+                  <div>
+                    <p className="rg-p" style={{ marginBottom: 12, opacity: 0.8 }}>Or 3rd option - which is the best:<span style={{display: 'none'}}>[cite: 20]</span></p>
+                    <p className="rg-p"><strong>Do Courses from Coursera but offered by Australian Universities</strong><span style={{display: 'none'}}>[cite: 20]</span> <br/><span className="rg-accent" style={{ display: 'inline-block', marginTop: 8 }}>We recommend Macquarie University (Sydney)</span><span style={{display: 'none'}}>[cite: 20]</span></p>
                   </div>
                 </div>
               </div>
 
-            {/* Course Grids */}
-            <div className="grid md:grid-cols-3 gap-8 w-full">
+              {/* BA Category */}
+              <div className="rg-course-category">
+                <p className="rg-course-category-title">If you are into BA/Data Analyst Roles:<span style={{display: 'none'}}>[cite: 21]</span></p>
+                <a href="https://www.coursera.org/learn/business-intelligence-data-analytics" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Business intelligence and data analytics: Generate insights<span style={{display: 'none'}}>[cite: 29]</span>
+                </a>
+                <a href="https://www.coursera.org/specializations/excel-data-analytics-visualization" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Excel Skills for Data Analytics and Visualization Specialization<span style={{display: 'none'}}>[cite: 30]</span>
+                </a>
+                <a href="https://www.coursera.org/learn/excel-data-analysis-fundamentals" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Excel Fundamentals for Data Analysis<span style={{display: 'none'}}>[cite: 31]</span>
+                </a>
+                <a href="https://www.coursera.org/learn/excel-power-tools" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Excel Power Tools for Data Analysis<span style={{display: 'none'}}>[cite: 32]</span>
+                </a>
+              </div>
+
+              {/* Cyber Category */}
+              <div className="rg-course-category">
+                <p className="rg-course-category-title">If you are into CyberSecurity Roles:<span style={{display: 'none'}}>[cite: 21]</span></p>
+                <a href="https://www.coursera.org/learn/cyber-security-essentials" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Cyber Security: Essentials<span style={{display: 'none'}}>[cite: 42]</span>
+                </a>
+                <a href="https://www.coursera.org/learn/cyber-security-essentials-workplace" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Cyber Security: Essentials for Workplace<span style={{display: 'none'}}>[cite: 43]</span>
+                </a>
+                <a href="https://www.coursera.org/learn/cyber-security-digital-forensics" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Cyber Security: Digital Forensics<span style={{display: 'none'}}>[cite: 45]</span>
+                </a>
+                <a href="https://www.coursera.org/learn/cyber-security-applied-cryptography" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Cyber Security: Applied Cryptography<span style={{display: 'none'}}>[cite: 46]</span>
+                </a>
+              </div>
+
+              {/* AI Category */}
+              <div className="rg-course-category">
+                <p className="rg-course-category-title">AI / Machine Learning & AI Security<span style={{display: 'none'}}>[cite: 62]</span></p>
+                <a href="https://www.coursera.org/learn/cyber-security-application-of-ai" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Cyber Security: Application of AI<span style={{display: 'none'}}>[cite: 63]</span>
+                </a>
+                <a href="https://www.coursera.org/learn/mq-csa-ai-for-cyber-security" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> AI for Cyber Security<span style={{display: 'none'}}>[cite: 64]</span>
+                </a>
+                <a href="https://www.coursera.org/learn/cyber-security-security-ai" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Cyber Security: Security of AI<span style={{display: 'none'}}>[cite: 65]</span>
+                </a>
+                <a href="https://www.coursera.org/specializations/cyber-security-essentials-for-ai" target="_blank" rel="noreferrer" className="rg-course-item">
+                  <ArrowRight size={20} className="rg-course-icon" /> Cyber Security: Essentials for AI Specialization<span style={{display: 'none'}}>[cite: 66]</span>
+                </a>
+              </div>
+
+              <a href="https://www.coursera.org/partners/macquarie" target="_blank" rel="noreferrer" style={{ fontSize: 14, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.15em", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10, marginTop: 24, fontWeight: 700 }}>
+                View all Macquarie courses <ExternalLink size={16} />
+              </a>
+            </FadeUp>
+          </section>
+
+          {/* ── 04 VOLUNTEERING ── */}
+          <section className="rg-section">
+            <FadeUp>
+              <p className="rg-num">04 — Strategy</p>
+              <h2 className="rg-title">Volunteering<span style={{display: 'none'}}>[cite: 21]</span></h2>
+              <p className="rg-p">Yes, Volunteering!<span style={{display: 'none'}}>[cite: 21]</span> Aussie recruiters say they love migrants who have done volunteering because it shows that you are actively contributing to Australian communities.<span style={{display: 'none'}}>[cite: 22]</span></p>
+              <p className="rg-p">We recently had multiple clients like you, who got IT volunteer roles related to SE, QA & BA, Also the best part is that recruiters will think that you are a nice person 😉<span style={{display: 'none'}}>[cite: 22]</span></p>
+
+              <p className="rg-video-label" style={{ marginTop: 64 }}>Watch this first</p>
+              <VideoEmbed src="https://player.vimeo.com/video/1190465373?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479" title="Seek Volunteer Video" />
+
+              <div className="rg-link-list">
+                <p className="rg-video-label" style={{ textAlign: "left", marginTop: 20 }}>There are 2 Main Volunteer Sites:<span style={{display: 'none'}}>[cite: 22]</span></p>
+                <a href="https://www.seekvolunteer.com.au/" target="_blank" rel="noreferrer" className="rg-link-item">
+                  <div className="rg-link-item-left"><span className="rg-link-item-num">1</span> Seek Volunteer<span style={{display: 'none'}}>[cite: 23]</span></div>
+                  <ExternalLink size={20} opacity={0.3} />
+                </a>
+                <a href="https://govolunteer.com.au/" target="_blank" rel="noreferrer" className="rg-link-item">
+                  <div className="rg-link-item-left"><span className="rg-link-item-num">2</span> GoVolunteer<span style={{display: 'none'}}>[cite: 23]</span></div>
+                  <ExternalLink size={20} opacity={0.3} />
+                </a>
+              </div>
+
+              <p className="rg-p">Both of the sites have volunteering opportunities from one time ones to long term projects.<span style={{display: 'none'}}>[cite: 23]</span> But you can also find opportunities relevant to IT here :)<span style={{display: 'none'}}>[cite: 23]</span></p>
+
+              <div className="rg-callout">
+                <p className="rg-p">Now click here and don’t forget to select <strong className="rg-accent">“IT & Web Development”</strong> under “Type of work”<span style={{display: 'none'}}>[cite: 24]</span></p>
+              </div>
+            </FadeUp>
+          </section>
+
+          {/* ── CTA ── */}
+          <section className="rg-section rg-cta">
+            <FadeUp>
+              <Sparkles size={56} className="rg-cta-icon" />
+              <h2>Happy Job Search!</h2>
+              <p className="rg-p rg-cta-desc">
+                These are the main things we recommend you do. If you need any additional help, Feel free to contact us using <a href="https://dreamshift.net" target="_blank" rel="noreferrer" style={{ color: "var(--white)", textDecoration: "underline", textUnderlineOffset: 6 }}>dreamshift.net</a><span style={{display: 'none'}}>[cite: 25]</span>
+              </p>
+              <p className="rg-p rg-cta-wish">We wish you nothing but the best!<span style={{display: 'none'}}>[cite: 25]</span></p>
               
-              {/* BA Card */}
-              <div className="bg-dreamCard/30 p-8 rounded-[2rem] border border-white/5 hover:border-dreamGold/30 transition-all flex flex-col h-full shadow-lg">
-                <Briefcase className="text-dreamGold mb-6" size={32} />
-                <h3 className="text-xl font-bold text-white mb-6 border-b border-white/10 pb-4">If you are into BA/Data Analyst Roles:</h3>
-                <ul className="space-y-4 mb-8 text-sm font-light text-gray-300 flex-grow">
-                  <li><a href="https://www.coursera.org/learn/business-intelligence-data-analytics" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Business intelligence and data analytics: Generate insights</a></li>
-                  <li><a href="https://www.coursera.org/specializations/excel-data-analytics-visualization" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Excel Skills for Data Analytics and Visualization</a></li>
-                  <li><a href="https://www.coursera.org/learn/excel-data-analysis-fundamentals" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Excel Fundamentals for Data Analysis</a></li>
-                  <li><a href="https://www.coursera.org/learn/excel-power-tools" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Excel Power Tools for Data Analysis</a></li>
-                </ul>
-                <a href="https://www.coursera.org/partners/macquarie" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-white/5 hover:bg-dreamGold hover:text-dreamBg text-white px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all mt-auto w-full">
-                  View More <ExternalLink size={14}/>
-                </a>
-              </div>
+              <a href="https://dreamshift.net" target="_blank" rel="noreferrer" className="rg-cta-btn">
+                Visit DreamShift.net <ChevronRight size={20} />
+              </a>
+            </FadeUp>
+          </section>
 
-              {/* Cyber Card */}
-              <div className="bg-dreamCard/30 p-8 rounded-[2rem] border border-white/5 hover:border-dreamGold/30 transition-all flex flex-col h-full shadow-lg">
-                <ShieldCheck className="text-dreamGold mb-6" size={32} />
-                <h3 className="text-xl font-bold text-white mb-6 border-b border-white/10 pb-4">If you are into CyberSecurity Roles:</h3>
-                <ul className="space-y-4 mb-8 text-sm font-light text-gray-300 flex-grow">
-                  <li><a href="https://www.coursera.org/learn/cyber-security-essentials" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Cyber Security: Essentials</a></li>
-                  <li><a href="https://www.coursera.org/learn/cyber-security-essentials-workplace" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Cyber Security: Essentials for Workplace</a></li>
-                  <li><a href="https://www.coursera.org/learn/cyber-security-digital-forensics" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Cyber Security: Digital Forensics</a></li>
-                  <li><a href="https://www.coursera.org/learn/cyber-security-applied-cryptography" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Cyber Security: Applied Cryptography</a></li>
-                </ul>
-                <a href="https://www.coursera.org/partners/macquarie" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-white/5 hover:bg-dreamGold hover:text-dreamBg text-white px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all mt-auto w-full">
-                  View More <ExternalLink size={14}/>
-                </a>
-              </div>
-
-              {/* AI Card */}
-              <div className="bg-dreamCard/30 p-8 rounded-[2rem] border border-white/5 hover:border-dreamGold/30 transition-all flex flex-col h-full shadow-lg">
-                <BrainCircuit className="text-dreamGold mb-6" size={32} />
-                <h3 className="text-xl font-bold text-white mb-6 border-b border-white/10 pb-4">If you are into AI Roles:</h3>
-                <ul className="space-y-4 mb-8 text-sm font-light text-gray-300 flex-grow">
-                  <li><a href="https://www.coursera.org/learn/cyber-security-application-of-ai" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Cyber Security: Application of AI</a></li>
-                  <li><a href="https://www.coursera.org/learn/mq-csa-ai-for-cyber-security" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• AI for Cyber Security</a></li>
-                  <li><a href="https://www.coursera.org/learn/cyber-security-security-ai" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Cyber Security: Security of AI</a></li>
-                  <li><a href="https://www.coursera.org/specializations/cyber-security-essentials-for-ai" target="_blank" rel="noreferrer" className="hover:text-dreamGold transition-colors block leading-relaxed">• Cyber Security: Essentials for AI</a></li>
-                </ul>
-                <a href="https://www.coursera.org/partners/macquarie" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-white/5 hover:bg-dreamGold hover:text-dreamBg text-white px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all mt-auto w-full">
-                  View More <ExternalLink size={14}/>
-                </a>
-              </div>
-
-            </div>
-          </motion.div>
-        </section>
-
-        {/* SLIDE 6: VOLUNTEERING */}
-        <section className="min-h-screen w-full snap-start snap-always py-32 flex items-center justify-center px-4 md:px-6 bg-gradient-to-b from-transparent to-black/30">
-          <motion.div variants={revealVariants} initial="hidden" whileInView="visible" className="max-w-6xl w-full">
-            <div className="w-full text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tight"><span className="text-dreamGold">4)</span> <span>Volunteering</span></h2>
-            </div>
-
-            <div className="grid lg:grid-cols-12 gap-12 items-start">
-              
-              <div className="lg:col-span-6 space-y-8">
-                <div className="bg-dreamBg/60 p-8 md:p-10 rounded-3xl border border-white/10 backdrop-blur-md shadow-lg">
-                  <p className="text-2xl text-dreamGold font-bold mb-6 flex items-center gap-3"><HeartHandshake size={28} /> Yes, Volunteering!</p>
-                  <p className="text-lg text-gray-300 font-light leading-relaxed mb-6">
-                    Aussie recruiters say they love migrants who have done volunteering because it shows that you are actively contributing to Australian communities.
-                  </p>
-                  <p className="text-lg text-gray-300 font-light leading-relaxed mb-6">
-                    We recently had multiple clients like you, who got IT volunteer roles related to SE, QA & BA,
-                  </p>
-                  <p className="text-lg text-white font-medium leading-relaxed">
-                    Also the best part is that recruiters will think that you are a nice person 😉
-                  </p>
-                </div>
-
-                <div className="bg-dreamCard/20 p-8 md:p-10 rounded-3xl border border-white/10 backdrop-blur-md shadow-lg">
-                  <p className="text-xl font-medium text-white mb-6">There are 2 Main Volunteer Sites:</p>
-                  <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                    <a href="https://www.seekvolunteer.com.au/" target="_blank" rel="noreferrer" className="flex-1 bg-black/40 py-4 px-6 rounded-2xl border border-white/10 hover:border-dreamGold/60 transition-all duration-300 text-white hover:text-dreamGold font-bold text-sm shadow-md flex items-center justify-between">
-                      1. Seek Volunteer <ExternalLink size={16}/>
-                    </a>
-                    <a href="https://govolunteer.com.au/" target="_blank" rel="noreferrer" className="flex-1 bg-black/40 py-4 px-6 rounded-2xl border border-white/10 hover:border-dreamGold/60 transition-all duration-300 text-white hover:text-dreamGold font-bold text-sm shadow-md flex items-center justify-between">
-                      2. GoVolunteer <ExternalLink size={16}/>
-                    </a>
-                  </div>
-                  <p className="text-sm text-gray-400 font-light leading-relaxed mb-6">
-                    Both of the sites have volunteering opportunities from one time ones to long term projects.
-                  </p>
-                  <p className="text-white font-medium">
-                    But you can also find opportunities relevant to IT here :)
-                  </p>
-                </div>
-              </div>
-
-              <div className="lg:col-span-6 flex flex-col items-center">
-                <p className="text-xl text-white font-medium mb-6">Check this video first</p>
-                <ReelEmbed src="https://player.vimeo.com/video/1190465373?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479" title="Seek Volunteer Video" />
-                
-                <div className="mt-8 bg-dreamGold/10 border border-dreamGold/40 p-6 rounded-2xl relative overflow-hidden shadow-lg w-full max-w-[320px] text-center">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-dreamGold to-dreamGold/50"></div>
-                  <p className="text-white text-sm font-light leading-relaxed">
-                    Now click here and don’t forget to select <br/><strong className="text-dreamGold font-bold text-base mt-2 inline-block">“IT & Web Development”</strong><br/> under “Type of work”
-                  </p>
-                </div>
-              </div>
-
-            </div>
-          </motion.div>
-        </section>
-
-        {/* SLIDE 7: CTA */}
-        <section className="h-screen w-full snap-start snap-always flex flex-col items-center justify-center px-4 md:px-6">
-          <motion.div variants={revealVariants} initial="hidden" whileInView="visible" className="text-center max-w-3xl">
-            <Sparkles className="text-dreamGold mb-8 mx-auto" size={40} />
-            <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">Happy Job Search!</h2>
-            <p className="text-base md:text-lg text-gray-300 font-light mb-12 leading-relaxed">
-              These are the main resources we recommend. Feel free to contact us at <a href="#" className="text-dreamGold font-semibold hover:text-dreamGold/80 transition-colors">dreamshift.net</a> for additional support.
-            </p>
-            <motion.a 
-              whileHover={{ scale: 1.08 }} 
-              whileTap={{ scale: 0.96 }}
-              href="https://dreamshift.net"
-              className="inline-flex items-center gap-3 bg-dreamGold text-dreamBg px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest shadow-2xl transition-all duration-300 hover:shadow-dreamGold/40 hover:bg-opacity-90"
-            >
-              Visit DreamShift.net
-              <ChevronRight size={18} />
-            </motion.a>
-          </motion.div>
-        </section>
+        </main>
 
       </div>
-    </div>
+    </>
   );
 }
