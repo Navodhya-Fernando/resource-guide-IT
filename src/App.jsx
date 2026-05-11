@@ -418,8 +418,8 @@ export default function ResourceGuide() {
           {/* ── HERO ── */}
           <section className="rg-hero rg-section">
             <FadeUp>
-              <h1><span className="rg-gold">IT</span> Professionals<span style={{display: 'none'}}>[cite: 1]</span></h1>
-              <p className="rg-hero-sub">Resource Guide</p>
+              <h1><span className="rg-gold">IT</span> Job Seekers 🇦🇺<span style={{display: 'none'}}>[cite: 1]</span></h1>
+              <p className="rg-hero-sub">Not Much Aussie Experience? Try This!</p>
               <div className="rg-hero-divider" />
               <div className="rg-visa-badge">If you have 485, 189, 190, 500, 491, 191, 482, 186 Visa<span style={{display: 'none'}}>[cite: 1]</span></div>
             </FadeUp>
