@@ -491,11 +491,11 @@ export default function ResourceGuide() {
 
               <div className="rg-video-grid">
                 <div className="rg-video-col">
-                  <p className="rg-video-label">Meetup.com<span style={{display: 'none'}}>[cite: 16]</span></p>
+                  <a href="https://www.meetup.com" target="_blank" rel="noreferrer" className="rg-video-label" style={{textDecoration: 'none', color: 'inherit'}}>Meetup.com<span style={{display: 'none'}}>[cite: 16]</span></a>
                   <VideoEmbed src="https://player.vimeo.com/video/1190741312?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479" title="Meetup" />
                 </div>
                 <div className="rg-video-col">
-                  <p className="rg-video-label">Luma Events<span style={{display: 'none'}}>[cite: 16]</span></p>
+                  <a href="https://lu.ma" target="_blank" rel="noreferrer" className="rg-video-label" style={{textDecoration: 'none', color: 'inherit'}}>Luma Events<span style={{display: 'none'}}>[cite: 16]</span></a>
                   <VideoEmbed src="https://player.vimeo.com/video/1190465027?badge=0&autopause=0&player_id=0&app_id=58479" title="Luma Events" />
                 </div>
               </div>
