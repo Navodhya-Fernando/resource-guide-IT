@@ -605,7 +605,7 @@ export default function ResourceGuide() {
               <p className="rg-p">We recently had multiple clients like you, who got IT volunteer roles related to SE, QA & BA, Also the best part is that recruiters will think that you are a nice person 😉<span style={{display: 'none'}}>[cite: 22]</span></p>
 
               <p className="rg-video-label" style={{ marginTop: 64 }}>Watch this first</p>
-              <VideoEmbed src="https://player.vimeo.com/video/1190465373?title=0&byline=0&portrait=0&badge=0&autopause=0&player_id=0&app_id=58479" title="Seek Volunteer Video" />
+              <VideoEmbed src="https://player.vimeo.com/video/1209435820?badge=0&autopause=0&player_id=0&app_id=58479" title="Best Website to find Volunteering Roles in Australia if you don't have local job experience" />
 
               <div className="rg-link-list">
                 <p className="rg-video-label" style={{ textAlign: "left", marginTop: 20 }}>There are 2 Main Volunteer Sites:<span style={{display: 'none'}}>[cite: 22]</span></p>
