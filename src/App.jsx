@@ -393,6 +393,58 @@ const VideoEmbed = ({ src, title }) => (
 
 export default function ResourceGuide() {
   const progressRef = useRef(null);
+  const [leadForm, setLeadForm] = useState({ name: "", email: "" });
+  const [leadStatus, setLeadStatus] = useState("idle");
+
+  const inferIndustryFromUrl = () => {
+    const host = window.location.hostname.toLowerCase();
+
+    if (host.includes("construction") || host.includes("constructions") || host.includes("civil")) {
+      return "construction-civil";
+    }
+
+    return "general";
+  };
+
+  const handleLeadChange = (event) => {
+    const { name, value } = event.target;
+
+    setLeadForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleLeadSubmit = async (event) => {
+    event.preventDefault();
+    setLeadStatus("submitting");
+
+    const payload = {
+      name: leadForm.name.trim(),
+      email: leadForm.email.trim(),
+      industry: inferIndustryFromUrl(),
+      sourceUrl: window.location.href,
+    };
+
+    try {
+      const response = await fetch("/.netlify/functions/lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Lead submission failed");
+      }
+
+      setLeadStatus("success");
+      setLeadForm({ name: "", email: "" });
+    } catch (error) {
+      setLeadStatus("error");
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -402,6 +454,7 @@ export default function ResourceGuide() {
         progressRef.current.style.width = (scrolled / total) * 100 + "%";
       }
     };
+    onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
