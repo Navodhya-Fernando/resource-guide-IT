@@ -7,11 +7,11 @@ const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap');
 
   :root {
-    --bg:     #24101a;
-    --layer:  #411c30;
-    --gold:   #f6b900;
-    --white:  #ffffff;
-    --muted:  rgba(255,255,255,0.6);
+    --bg: #24101a;
+    --layer: #411c30;
+    --gold: #f6b900;
+    --white: #ffffff;
+    --muted: rgba(255,255,255,0.6);
     --subtle: rgba(255,255,255,0.1);
     --border: rgba(246,185,0,0.25);
   }
@@ -23,45 +23,48 @@ const css = `
     background: var(--bg);
     color: var(--white);
     font-family: 'DM Sans', sans-serif;
-    font-weight: 400; /* Increased base weight for better readability */
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.7;
     overflow-x: hidden;
   }
 
-  /* Progress Bar */
   .rg-progress {
-    position: fixed; top: 0; left: 0;
-    height: 4px; width: 0%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 0%;
     background: var(--gold);
     z-index: 100;
     box-shadow: 0 0 15px var(--gold);
   }
 
-  /* Layout */
   .rg-main { max-width: 860px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
   .rg-section { padding: 140px 0; border-top: 1px solid var(--subtle); }
   .rg-section:first-child { border-top: none; }
 
-  /* Hero Section */
   .rg-hero {
     min-height: 100vh;
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
   }
   .rg-hero h1 {
     font-family: 'DM Sans', sans-serif;
-    font-size: clamp(56px, 8vw, 96px);
+    font-size: clamp(40px, 5vw, 84px);
     font-weight: 700;
     line-height: 1.05;
     letter-spacing: -0.03em;
     margin-bottom: 16px;
     text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-wrap: balance;
+    white-space: nowrap;
   }
   .rg-gold { color: var(--gold); }
-  
   .rg-hero-sub {
     font-size: clamp(16px, 3vw, 22px);
     color: var(--muted);
@@ -70,8 +73,6 @@ const css = `
     font-weight: 500;
     margin-bottom: 48px;
   }
-
-  /* Improved Visa Badge */
   .rg-visa-badge {
     display: inline-flex;
     align-items: center;
@@ -87,7 +88,6 @@ const css = `
     margin-top: 20px;
   }
 
-  /* Typography & Section Labels */
   .rg-num {
     font-size: 13px;
     letter-spacing: 0.25em;
@@ -114,7 +114,6 @@ const css = `
   .rg-accent { color: var(--gold); font-weight: 700; }
   .rg-accent-red { color: #ffe500; font-weight: 700; }
 
-  /* Callout Block */
   .rg-callout {
     border-left: 3px solid var(--gold);
     padding: 24px 32px;
@@ -123,10 +122,10 @@ const css = `
     border-radius: 0 12px 12px 0;
   }
 
-  /* Step Lists */
   .rg-steps { margin: 48px 0; }
   .rg-step {
-    display: flex; gap: 24px;
+    display: flex;
+    gap: 24px;
     padding: 32px 0;
     border-bottom: 1px solid var(--subtle);
   }
@@ -152,7 +151,6 @@ const css = `
     border-radius: 0 8px 8px 0;
   }
 
-  /* Video Layouts */
   .rg-video-label {
     font-size: 12px;
     letter-spacing: 0.2em;
@@ -177,9 +175,25 @@ const css = `
   }
   .rg-video-wrap:hover { transform: translateY(-5px); border-color: var(--gold); }
   .rg-video-wrap iframe {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border: none;
+  }
+  .rg-video-wrap .instagram-media {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+  .rg-video-wrap .instagram-media iframe {
+    width: 100% !important;
+    height: 100% !important;
   }
   .rg-video-grid {
     display: grid;
@@ -188,11 +202,12 @@ const css = `
     margin: 48px 0;
   }
   .rg-video-col { display: flex; flex-direction: column; align-items: center; }
-  
-  /* Link Lists */
+
   .rg-link-list { margin: 48px 0; border-top: 1px solid var(--subtle); }
   .rg-link-item {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 24px 0;
     border-bottom: 1px solid var(--subtle);
     text-decoration: none;
@@ -205,7 +220,6 @@ const css = `
   .rg-link-item-left { display: flex; align-items: center; gap: 20px; }
   .rg-link-item-num { font-size: 14px; color: var(--gold); font-weight: 700; width: 30px; }
 
-  /* Course Sections */
   .rg-course-category { margin: 64px 0; }
   .rg-course-category-title {
     font-size: 14px;
@@ -216,7 +230,9 @@ const css = `
     font-weight: 700;
   }
   .rg-course-item {
-    display: flex; align-items: flex-start; gap: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
     padding: 20px 0;
     border-bottom: 1px solid var(--subtle);
     text-decoration: none;
@@ -227,36 +243,38 @@ const css = `
   .rg-course-item:hover { color: var(--gold); }
   .rg-course-icon { color: var(--gold); margin-top: 4px; flex-shrink: 0; }
 
-  /* Options List */
   .rg-options { margin: 48px 0; }
   .rg-option {
-    display: flex; gap: 24px;
+    display: flex;
+    gap: 24px;
     padding: 24px 0;
     border-bottom: 1px solid var(--subtle);
   }
   .rg-option:last-child { border-bottom: none; }
-  .rg-option.active { 
-    background: linear-gradient(90deg, rgba(246,185,0,0.08) 0%, transparent 100%); 
-    padding: 32px; 
-    border-radius: 12px; 
-    border: 1px solid var(--border); 
+  .rg-option.active {
+    background: linear-gradient(90deg, rgba(246,185,0,0.08) 0%, transparent 100%);
+    padding: 32px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
   }
   .rg-option-num { color: var(--gold); font-weight: 700; font-size: 18px; }
   .rg-option-text { font-size: 17px; color: rgba(255,255,255,0.7); }
   .rg-option.active .rg-option-text { color: var(--white); font-weight: 500; }
-  
-  /* CTA */
+
   .rg-cta {
     text-align: center;
     padding: 160px 0 200px;
   }
   .rg-cta-icon { color: var(--gold); margin: 0 auto 40px; }
   .rg-cta h2 {
-    font-size: clamp(40px, 8vw, 80px);
+    font-size: clamp(30px, 4.2vw, 56px);
     font-weight: 700;
     letter-spacing: -0.02em;
-    margin-bottom: 32px;
-    line-height: 1.1;
+    margin-bottom: 28px;
+    line-height: 1.06;
+    max-width: 18ch;
+    margin-left: auto;
+    margin-right: auto;
   }
   .rg-cta-desc {
     font-size: 20px;
@@ -270,7 +288,10 @@ const css = `
     color: var(--white);
   }
   .rg-cta-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
     background: var(--gold);
     color: var(--bg);
     text-decoration: none;
@@ -285,40 +306,94 @@ const css = `
     box-shadow: 0 10px 30px rgba(246,185,0,0.3);
   }
   .rg-cta-btn:hover { background: #fff; transform: translateY(-4px); box-shadow: 0 15px 40px rgba(255,255,255,0.4); }
+  .rg-cta-btn, .rg-cta-btn:focus-visible {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
 
-  /* Mobile Adjustments */
+  .rg-form {
+    max-width: 760px;
+    margin: 40px auto 0;
+    display: grid;
+    gap: 16px;
+  }
+  .rg-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .rg-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--subtle);
+    color: var(--white);
+    padding: 18px 20px;
+    border-radius: 16px;
+    font: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .rg-input::placeholder { color: rgba(255,255,255,0.45); }
+  .rg-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(246,185,0,0.12);
+    background: rgba(255,255,255,0.06);
+  }
+
   @media (max-width: 768px) {
+    .rg-main { padding: 0 18px; }
+    .rg-section { padding: 100px 0; }
+    .rg-hero {
+      min-height: 88svh;
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+    .rg-hero h1 {
+      font-size: clamp(32px, 8.5vw, 48px);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      white-space: normal;
+    }
+    .rg-hero-sub {
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      margin-bottom: 32px;
+    }
+    .rg-visa-badge {
+      max-width: 100%;
+      text-align: center;
+      padding: 12px 18px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .rg-title {
+      font-size: clamp(30px, 8vw, 42px);
+      margin-bottom: 28px;
+    }
     .rg-p { font-size: 16px; }
+    .rg-callout { padding: 20px 20px; margin: 32px 0; }
+    .rg-step { gap: 10px; padding: 24px 0; }
+    .rg-step-body { font-size: 16px; }
+    .rg-step-body blockquote { padding: 16px 18px; font-size: 14px; }
+    .rg-course-category { margin: 48px 0; }
+    .rg-course-category-title { margin-bottom: 18px; }
+    .rg-course-item { font-size: 15px; padding: 16px 0; gap: 12px; }
+    .rg-link-item { font-size: 15px; padding: 18px 0; gap: 12px; }
+    .rg-link-item-left { gap: 12px; }
     .rg-video-grid { grid-template-columns: 1fr; gap: 48px; }
+    .rg-form-row { grid-template-columns: 1fr; }
+    .rg-form { margin-top: 28px; gap: 12px; }
+    .rg-input { padding: 16px 16px; border-radius: 14px; }
     .rg-step { flex-direction: column; gap: 12px; }
     .rg-step-num { margin-bottom: 8px; }
-    .rg-cta {
-      padding: 80px 0 120px;
-    }
-    .rg-cta-icon {
-      margin: 0 auto 24px;
-      width: 40px;
-      height: 40px;
-    }
-    .rg-cta h2 {
-      font-size: 36px;
-      margin-bottom: 24px;
-    }
-    .rg-cta-desc {
-      font-size: 16px;
-      margin-bottom: 24px;
-      padding: 0 16px;
-    }
-    .rg-cta-wish {
-      font-size: 20px;
-    }
-    .rg-cta-btn {
-      padding: 18px 32px;
-      font-size: 14px;
-      margin-top: 24px;
-      width: 100%;
-      max-width: 300px;
-    }
+    .rg-cta { padding: 80px 0 120px; }
+    .rg-cta-icon { margin: 0 auto 24px; width: 40px; height: 40px; }
+    .rg-cta h2 { font-size: clamp(26px, 7.8vw, 34px); margin-bottom: 18px; max-width: 13ch; line-height: 1.06; }
+    .rg-cta-desc { font-size: 15px; margin-bottom: 20px; padding: 0 8px; }
+    .rg-cta-wish { font-size: 20px; }
+    .rg-cta-btn { padding: 18px 24px; font-size: 13px; margin-top: 20px; width: 100%; max-width: 320px; }
+    .rg-cta-btn:last-of-type { max-width: 280px; }
   }
 `;
 
