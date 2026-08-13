@@ -631,20 +631,25 @@ export default function ResourceGuide() {
           <section className="rg-section rg-cta">
             <FadeUp>
               <Sparkles size={56} className="rg-cta-icon" />
-              <h2>Happy Job Search!</h2>
-              <p className="rg-p rg-cta-desc">
-                These are the main things we recommend you do. If you need any additional help, Feel free to contact us using <a href="https://dreamshift.net" target="_blank" rel="noreferrer" style={{ color: "var(--white)", textDecoration: "underline", textUnderlineOffset: 6 }}>dreamshift.net</a><span style={{display: 'none'}}>[cite: 25]</span>
-              </p>
-              <p className="rg-p rg-cta-wish">We wish you nothing but the best!<span style={{display: 'none'}}>[cite: 25]</span></p>
-              
-              <a href="https://dreamshift.net" target="_blank" rel="noreferrer" className="rg-cta-btn">
-                Visit DreamShift.net <ChevronRight size={20} />
-              </a>
+              <p className="rg-num" style={{ marginBottom: 28 }}>Before You Go</p>
+              <h2>We have created a 3 Way Job Search Strategy!</h2>
+              <p className="rg-p rg-cta-desc">By working with 200+ job seekers in Australia, we created a step-by-step guide on 3 strategies people use to land interviews faster. Drop your email and we&apos;ll send it to you for totally free!</p>
+
+              <form className="rg-form" onSubmit={handleLeadSubmit}>
+                <div className="rg-form-row">
+                  <input className="rg-input" type="text" name="name" placeholder="Name" aria-label="Name" value={leadForm.name} onChange={handleLeadChange} required />
+                  <input className="rg-input" type="email" name="email" placeholder="Email" aria-label="Email" value={leadForm.email} onChange={handleLeadChange} required />
+                </div>
+                <button className="rg-cta-btn" type="submit" disabled={leadStatus === "submitting"}>
+                  {leadStatus === "submitting" ? "Sending..." : "Send Me the Guide"}
+                  <ChevronRight size={20} />
+                </button>
+                {leadStatus === "success" ? <p className="rg-p" style={{ marginTop: 8, color: "var(--gold)" }}>Thanks. We&apos;ll send the guide shortly.</p> : null}
+                {leadStatus === "error" ? <p className="rg-p" style={{ marginTop: 8, color: "#ffb7b7" }}>Something went wrong. Please try again.</p> : null}
+              </form>
             </FadeUp>
           </section>
-
         </main>
-
       </div>
     </>
   );
